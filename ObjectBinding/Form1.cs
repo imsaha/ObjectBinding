@@ -15,17 +15,20 @@ namespace ObjectBinding
         public Form1()
         {
             InitializeComponent();
-
-
-            cbGender.DataSource = Enum.GetValues(typeof(Gender));
-            bindingObj.DataSource = new List<User>();
-            AddNew();
+            this.Load += Form1_Load;
         }
 
-        private void AddNew()
+        private void Form1_Load(object sender, EventArgs e)
         {
+            cbGender.DataSource = Enum.GetValues(typeof(Gender));
+            bindingObj.DataSource = new List<User>();
             bindingObj.AddNew();
+            BindControl();
+        }
 
+        private void BindControl()
+        {
+            //Clear all the bindings
             txtFirstName.DataBindings.Clear();
             txtLastName.DataBindings.Clear();
             cbGender.DataBindings.Clear();
@@ -38,7 +41,6 @@ namespace ObjectBinding
             cbGender.DataBindings.Add("SelectedItem", bindingObj, "Gender");
             dpDob.DataBindings.Add("Value", bindingObj, "DateOfBirth");
             lblFullName.DataBindings.Add("Text", bindingObj, "FullName");
-
             btnSave.DataBindings.Add("Enabled", bindingObj, "IsValid");
         }
 
@@ -46,17 +48,16 @@ namespace ObjectBinding
         private void Save()
         {
             User _current = (User)bindingObj.Current;
-            if (_current != null)
+            if (_current != null && _current.IsValid)
             {
-                if (_current.IsValid)
-                {
-                    bindingObj.Add(_current);
-                    AddNew();
-                }
-                else
-                {
-                    MessageBox.Show("First name and last name is required");
-                }
+                bindingObj.AddNew();
+                bindingObj.MoveLast();
+
+                txtFirstName.Focus();
+            }
+            else
+            {
+                MessageBox.Show("First name and last name is required");
             }
         }
 
